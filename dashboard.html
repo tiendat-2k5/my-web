@@ -349,5 +349,6 @@
         
         renderList();
     </script>
+    <script>    // Tự động xin quyền toàn màn hình khi bạn chạm tay vào bất cứ đâu trên web    document.body.addEventListener('click', function() {        if (!document.fullscreenElement) {            document.documentElement.requestFullscreen().catch(err => {                console.log(`Lỗi: ${err.message}`);            });        }    }, {once: true}); // Chỉ cần chạm 1 lần đầu tiên</script>
 </body>
 </html>
