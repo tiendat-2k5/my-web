@@ -16,46 +16,53 @@
         .tab-bar { height: 70px; background: #222; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
         .tab-item { text-align: center; color: #888; cursor: pointer; font-size: 12px; }
         .tab-item.active-tab { color: #00ff00; }
-        .tab-item i { font-size: 24px; display: block; }
-
-        /* Style cho nút bấm đẹp hơn */
-        button:active { transform: scale(0.98); opacity: 0.8; }
+        
+        /* Nút bấm hiệu ứng */
+        button:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body>
 
     <div class="content-area">
         <div id="home" class="tab-content active">
-            <div id="clock" style="font-size: 40px; text-align: center; margin-top: 20px; font-weight: bold;">00:00:00</div>
-            <div id="weather" style="text-align: center; color: #aaa; margin-bottom: 20px;">Hồ Chí Minh, VN</div>
+            <div id="clock" style="font-size: 45px; text-align: center; margin-top: 30px; font-weight: bold; letter-spacing: 2px;">00:00</div>
+            <div id="date" style="text-align: center; color: #888; font-size: 14px; margin-bottom: 10px;">Thứ..., ngày...</div>
             
-            <div style="height: 300px; border-radius: 15px; overflow: hidden; border: 1px solid #333;">
-                <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh&showTitle=0&showNav=0&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA" 
+            <div id="weather-box" style="text-align: center; background: #222; padding: 15px; margin: 10px 20px; border-radius: 15px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <span id="weather-icon" style="font-size: 30px;">🌤️</span>
+                <div>
+                    <div id="temperature" style="font-size: 24px; font-weight: bold;">--°C</div>
+                    <div id="weather-desc" style="font-size: 12px; color: #aaa;">Đang tải...</div>
+                </div>
+            </div>
+
+            <div style="height: 350px; margin-top: 20px; border-radius: 15px; overflow: hidden; border: 1px solid #333;">
+                <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh&mode=AGENDA&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%23111111" 
                         style="border: 0; width: 100%; height: 100%;" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
 
         <div id="control" class="tab-content">
-            <h3 style="text-align: center; margin-bottom: 20px;">💡 Đèn Neon Bàn Học</h3>
+            <h3 style="text-align: center; margin-bottom: 20px; color: #00ff00;">💡 Đèn Neon Bàn Học</h3>
             
-            <button onclick="initBluetooth()" id="connect-btn" style="width: 100%; padding: 15px; background: #008CBA; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer;">
+            <button onclick="initBluetooth()" id="connect-btn" style="width: 100%; padding: 15px; background: #008CBA; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
                 🔗 KẾT NỐI BLUETOOTH
             </button>
             
-            <p id="status" style="text-align: center; color: #ffd700; margin: 15px 0; font-size: 14px; min-height: 20px;">Sẵn sàng kết nối...</p>
+            <p id="status" style="text-align: center; color: #ffd700; margin: 15px 0; font-size: 13px; font-style: italic;">Sẵn sàng kết nối...</p>
             
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <button onclick="sendHex('ON')" style="width: 48%; padding: 20px; background: #4CAF50; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 18px;">BẬT</button>
-                <button onclick="sendHex('OFF')" style="width: 48%; padding: 20px; background: #f44336; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 18px;">TẮT</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <button onclick="sendHex('ON')" style="width: 48%; padding: 25px; background: #4CAF50; border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 20px;">BẬT</button>
+                <button onclick="sendHex('OFF')" style="width: 48%; padding: 25px; background: #f44336; border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 20px;">TẮT</button>
             </div>
 
-             <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-                <button onclick="sendHex('STUDY')" style="background: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 20px;">📖 Học tập</button>
-                <button onclick="sendHex('RELAX')" style="background: #9C27B0; color: white; border: none; padding: 10px 20px; border-radius: 20px;">🎮 Giải trí</button>
+             <div style="display: flex; justify-content: space-around; margin-top: 25px;">
+                <button onclick="sendHex('STUDY')" style="background: #2196F3; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold;">📖 Học tập</button>
+                <button onclick="sendHex('RELAX')" style="background: #9C27B0; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold;">🎮 Giải trí</button>
             </div>
 
-            <div style="margin-top: 30px; background: #222; padding: 15px; border-radius: 15px; border: 1px solid #444;">
-                <p style="margin: 0 0 10px 5px; color: #aaa; font-size: 12px;">🎵 Nhạc Lo-fi / Gaming</p>
+            <div style="margin-top: 30px; background: #222; padding: 10px; border-radius: 15px; border: 1px solid #444;">
+                <p style="margin: 0 0 10px 10px; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Music Player</p>
                 <iframe width="100%" height="80" 
                         src="https://www.youtube.com/embed/videoseries?list=PLmP7O47PTy-McItNVWpEZxPTzqByUso82&si=tWm8Dz5hA25gRQ9X&autoplay=0&loop=1" 
                         title="YouTube Music Player" 
@@ -69,15 +76,15 @@
 
     <div class="tab-bar">
         <div class="tab-item active-tab" onclick="switchTab('home', this)">
-            <span style="font-size: 20px;">🏠</span><br>Home
+            <span style="font-size: 22px;">🏠</span>Home
         </div>
         <div class="tab-item" onclick="switchTab('control', this)">
-            <span style="font-size: 20px;">⚙️</span><br>Control
+            <span style="font-size: 22px;">⚙️</span>Control
         </div>
     </div>
 
     <script>
-        /* --- 1. LOGIC GIAO DIỆN --- */
+        /* --- 1. GIAO DIỆN & ĐỒNG HỒ --- */
         function switchTab(tabId, el) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active-tab'));
@@ -87,91 +94,109 @@
 
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN');
+            // Cập nhật giờ phút
+            document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            // Cập nhật ngày tháng
+            const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('vi-VN', options);
         }
         setInterval(updateClock, 1000);
-        updateClock(); // Chạy ngay lập tức để không bị hiện 00:00:00
+        updateClock();
 
-        /* --- 2. LOGIC BLUETOOTH (ĐÃ CHÈN) --- */
+        /* --- 2. THỜI TIẾT (MỚI THÊM) --- */
+        async function fetchWeather() {
+            try {
+                // Tọa độ TP.HCM: 10.82, 106.63
+                const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=10.8231&longitude=106.6297&current_weather=true');
+                const data = await response.json();
+                
+                const temp = data.current_weather.temperature;
+                const code = data.current_weather.weathercode;
+                
+                // Cập nhật nhiệt độ
+                document.getElementById('temperature').innerText = temp + "°C";
+
+                // Diễn giải mã thời tiết
+                let icon = "🌤️";
+                let desc = "Trời quang";
+                
+                if (code <= 3) { icon = "☁️"; desc = "Có mây"; }
+                if (code >= 51 && code <= 67) { icon = "🌧️"; desc = "Mưa nhỏ"; }
+                if (code >= 80 && code <= 99) { icon = "⛈️"; desc = "Mưa rào/Dông"; }
+                
+                document.getElementById('weather-icon').innerText = icon;
+                document.getElementById('weather-desc').innerText = desc;
+
+            } catch (error) {
+                console.log("Lỗi tải thời tiết:", error);
+                document.getElementById('weather-desc').innerText = "Lỗi mạng";
+            }
+        }
+        // Gọi hàm thời tiết ngay khi mở web và cập nhật mỗi 30 phút
+        fetchWeather();
+        setInterval(fetchWeather, 1800000);
+
+        /* --- 3. BLUETOOTH CONTROL --- */
         let lampCharacteristic = null;
-
-        // Các UUID và Mã Hex chuẩn
         const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb'; 
         const CHAR_UUID    = '0000fff3-0000-1000-8000-00805f9b34fb'; 
 
         const HEX_CODES = {
             'ON':    [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF], 
             'OFF':   [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF], 
-            'STUDY': [0x7E, 0x05, 0x03, 0x00, 0xFF, 0x00], // Lưu ý: Có thể cần dò lại mã 9 byte nếu mã 6 byte này không chạy
+            'STUDY': [0x7E, 0x05, 0x03, 0x00, 0xFF, 0x00],
             'RELAX': [0x7E, 0x05, 0x03, 0xFF, 0x00, 0xFF]  
         };
 
         async function initBluetooth() {
             const statusEl = document.getElementById('status');
-            if (!statusEl) { console.error("Không tìm thấy thẻ status!"); return; }
-
             try {
-                statusEl.innerText = "Đang quét tất cả thiết bị...";
+                statusEl.innerText = "Đang quét thiết bị...";
                 statusEl.style.color = "yellow";
                 
-                // Quét thiết bị (đã mở rộng phạm vi acceptAllDevices)
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
                     optionalServices: [SERVICE_UUID.toLowerCase()] 
                 });
 
-                statusEl.innerText = "Đang kết nối với: " + device.name + "...";
+                statusEl.innerText = "Kết nối: " + device.name;
                 const server = await device.gatt.connect();
-                
-                statusEl.innerText = "Đang tìm dịch vụ điều khiển...";
                 const service = await server.getPrimaryService(SERVICE_UUID.toLowerCase());
                 lampCharacteristic = await service.getCharacteristic(CHAR_UUID.toLowerCase());
 
-                statusEl.innerText = "✅ Kết nối thành công!";
-                statusEl.style.color = "#00ff00"; // Màu xanh báo hiệu thành công
+                statusEl.innerText = "✅ Đã kết nối thành công!";
+                statusEl.style.color = "#00ff00";
                 
-                // Tự động ngắt kết nối sau 10 phút để tiết kiệm pin (tùy chọn)
-                device.addEventListener('gattserverdisconnected', onDisconnected);
+                // Tự động ngắt kết nối khi thiết bị mất sóng
+                device.addEventListener('gattserverdisconnected', () => {
+                    statusEl.innerText = "⚠️ Mất kết nối!";
+                    statusEl.style.color = "red";
+                    lampCharacteristic = null;
+                });
 
             } catch (error) {
                 statusEl.innerText = "❌ Lỗi: " + error.message;
                 statusEl.style.color = "red";
-                console.error(error);
             }
-        }
-
-        function onDisconnected(event) {
-            const device = event.target;
-            document.getElementById('status').innerText = "⚠️ Đã ngắt kết nối";
-            document.getElementById('status').style.color = "orange";
-            lampCharacteristic = null;
         }
 
         async function sendHex(mode) {
             const statusEl = document.getElementById('status');
             if (!lampCharacteristic) {
-                statusEl.innerText = "⚠️ Chưa kết nối! Hãy bấm nút KẾT NỐI trước.";
+                statusEl.innerText = "⚠️ Chưa kết nối Bluetooth!";
                 statusEl.style.color = "orange";
                 return;
             }
-
             const command = new Uint8Array(HEX_CODES[mode]);
-            
             try {
-                // Ưu tiên Write With Response (An toàn)
                 await lampCharacteristic.writeValueWithResponse(command);
                 statusEl.innerText = "✅ Đã gửi lệnh: " + mode;
-                statusEl.style.color = "#00ff00";
             } catch (error) {
-                console.warn("WriteWithResponse failed, trying WithoutResponse...");
                 try {
-                    // Dự phòng Write Without Response (Nhanh)
                     await lampCharacteristic.writeValueWithoutResponse(command);
                     statusEl.innerText = "✅ Đã gửi (No-Resp): " + mode;
-                    statusEl.style.color = "#00ff00";
                 } catch (err2) {
-                    statusEl.innerText = "❌ Lỗi gửi lệnh: " + err2.message;
-                    statusEl.style.color = "red";
+                    statusEl.innerText = "❌ Lỗi gửi: " + err2.message;
                 }
             }
         }
