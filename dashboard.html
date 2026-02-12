@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Kens Smart Home V3.1</title>
+    <title>Kens Smart Home Pro</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        /* --- 1. CẤU HÌNH GIAO DIỆN --- */
+        /* --- 1. GIAO DIỆN CƠ BẢN --- */
         body, html {
             margin: 0; padding: 0;
             background-color: #000000; color: white;
-            font-family: sans-serif;
-            height: 100%; width: 100%; overflow: hidden;
+            font-family: sans-serif; height: 100%; width: 100%; overflow: hidden;
         }
 
         .dashboard-grid {
@@ -68,7 +67,7 @@
 
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
 
-        /* DANH SÁCH THIẾT BỊ */
+        /* --- DANH SÁCH THIẾT BỊ --- */
         .device-card {
             background: #222; border-radius: 10px; margin-bottom: 15px;
             border: 1px solid #333; overflow: hidden; position: relative;
@@ -81,7 +80,7 @@
         .badge-wifi { background: #4CAF50; }
 
         .device-header {
-            padding: 20px 15px 15px 15px; display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 15px 15px 15px; display: flex; justify-content: space-between; align-items: center;
             background: #2a2a2a;
         }
         .status-dot { height: 10px; width: 10px; background-color: #555; border-radius: 50%; display: inline-block; margin-right: 10px; }
@@ -95,6 +94,28 @@
 
         .ctrl-btn { padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 16px; cursor: pointer; }
         .add-btn { width: 100%; padding: 15px; margin-top: 10px; background: transparent; border: 2px dashed #555; color: #888; border-radius: 10px; font-weight: bold; }
+
+        /* --- THANH TRƯỢT ĐỘ SÁNG (SLIDER CSS) --- */
+        .brightness-container {
+            grid-column: span 2; /* Chiếm hết chiều ngang */
+            background: #222; padding: 10px; border-radius: 10px;
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 5px;
+        }
+        
+        /* Tạo thanh trượt đẹp */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px;
+            border-radius: 50%; background: #FFC107;
+            cursor: pointer; margin-top: -8px; box-shadow: 0 0 5px #FFC107;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; cursor: pointer;
+            background: #444; border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -162,43 +183,27 @@
 
         /* --- 2. QUẢN LÝ DỮ LIỆU --- */
         let devices = [];
-        
-        // Load dữ liệu an toàn
         try {
-            const saved = localStorage.getItem('kens_devices');
-            if (saved) {
-                devices = JSON.parse(saved);
-            } else {
-                // Dữ liệu mẫu nếu chưa có gì
-                devices = [
-                    { id: 1, name: "Đèn Bàn (Bluetooth)", type: 'BLE', connected: false, expanded: false }
-                ];
-            }
-        } catch (e) {
-            console.error("Lỗi load dữ liệu:", e);
-            devices = [];
-        }
+            const saved = localStorage.getItem('kens_devices_v2');
+            if (saved) devices = JSON.parse(saved);
+            else devices = [{ id: 1, name: "Đèn Bàn (BLE)", type: 'BLE', connected: false, expanded: false, brightness: 100 }];
+        } catch (e) { devices = []; }
 
-        // Hàm lưu dữ liệu (Quan trọng: Lọc bỏ đối tượng Bluetooth phức tạp trước khi lưu)
         function saveData() {
             try {
                 const cleanData = devices.map(d => ({
-                    id: d.id,
-                    name: d.name,
-                    type: d.type,
-                    ip: d.ip || '',
-                    expanded: false, // Reset trạng thái mở rộng khi lưu
-                    connected: false // Reset trạng thái kết nối khi load lại
+                    id: d.id, name: d.name, type: d.type, ip: d.ip || '', 
+                    brightness: d.brightness || 100, // Lưu độ sáng
+                    expanded: false, connected: false
                 }));
-                localStorage.setItem('kens_devices', JSON.stringify(cleanData));
+                localStorage.setItem('kens_devices_v2', JSON.stringify(cleanData));
                 renderList();
-            } catch (e) {
-                alert("Lỗi lưu dữ liệu: " + e.message);
-            }
+            } catch (e) { alert("Lỗi lưu: " + e.message); }
         }
 
         const UUID_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
         const UUID_CHR = '0000fff3-0000-1000-8000-00805f9b34fb';
+        // MÃ HEX CƠ BẢN
         const HEX = {
             'ON': [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF],
             'OFF': [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF],
@@ -209,17 +214,15 @@
         function renderList() {
             const list = document.getElementById('device-list');
             if(!list) return;
-            
             list.innerHTML = "";
             let count = 0;
 
             devices.forEach((dev, idx) => {
                 if(dev.connected) count++;
-                
-                // Mặc định type là BLE nếu thiếu
                 const type = dev.type || 'BLE';
                 let icon = type === 'BLE' ? 'bluetooth' : 'wifi';
                 let badgeClass = type === 'BLE' ? 'badge-ble' : 'badge-wifi';
+                let brightVal = dev.brightness || 100;
 
                 const html = `
                 <div class="device-card">
@@ -242,7 +245,15 @@
                             </button>
                         </div>
                     </div>
+                    
                     <div class="device-controls ${dev.expanded ? 'show' : ''}">
+                        <div class="brightness-container">
+                            <span class="material-icons" style="color:#aaa;">brightness_6</span>
+                            <input type="range" min="0" max="100" value="${brightVal}" 
+                                   onchange="setBrightness(${idx}, this.value)">
+                            <span style="font-size:12px; width:30px; text-align:right;">${brightVal}%</span>
+                        </div>
+
                         <button class="ctrl-btn" style="background:#4CAF50;" onclick="cmd(${idx}, 'ON')">BẬT</button>
                         <button class="ctrl-btn" style="background:#f44336;" onclick="cmd(${idx}, 'OFF')">TẮT</button>
                         <button class="ctrl-btn" style="background:#2196F3;" onclick="cmd(${idx}, 'STUDY')">HỌC</button>
@@ -251,123 +262,91 @@
                 </div>`;
                 list.innerHTML += html;
             });
-            
-            const countEl = document.getElementById('active-count');
-            if(countEl) countEl.innerText = count;
+            document.getElementById('active-count').innerText = count;
         }
 
-        /* --- 3. HÀM THÊM THIẾT BỊ (ĐÃ SỬA LỖI) --- */
-        function addDeviceSafe() {
-            // Bước 1: Hỏi tên
-            const name = prompt("Bước 1/2: Nhập tên thiết bị", "Thiết bị mới");
-            if (name === null) return; // Nếu bấm hủy thì dừng
-
-            // Bước 2: Hỏi loại
-            const typeInput = prompt("Bước 2/2: Chọn loại kết nối\nNhập '1' -> Bluetooth\nNhập '2' -> Wi-Fi", "1");
-            if (typeInput === null) return; // Nếu bấm hủy thì dừng
-
-            let finalType = 'BLE';
-            let finalIP = '';
-
-            if (typeInput === '2') {
-                finalType = 'WIFI';
-                finalIP = prompt("Nhập địa chỉ IP (VD: 192.168.1.100)", "192.168.1.100");
-            }
-
-            // Thêm vào mảng an toàn
-            devices.push({ 
-                id: Date.now(), 
-                name: name || "Không tên", 
-                type: finalType,
-                ip: finalIP,
-                connected: false, 
-                expanded: false,
-                gatt: null, // Khởi tạo null
-                char: null 
-            });
-
-            saveData(); // Lưu lại ngay
-        }
-
-        function deleteDev(idx) {
-            if(confirm(`Xóa thiết bị "${devices[idx].name}"?`)) {
-                devices.splice(idx, 1);
-                saveData();
-            }
-        }
-
-        function rename(idx) { 
-            const n = prompt("Tên mới:", devices[idx].name); 
-            if(n) { devices[idx].name = n; saveData(); } 
-        }
-
-        function toggle(idx) { 
-            devices[idx].expanded = !devices[idx].expanded; 
-            renderList(); // Chỉ render lại chứ không save để tránh lag
-        }
-
-        /* --- 4. LOGIC KẾT NỐI --- */
+        /* --- 3. LOGIC KẾT NỐI --- */
         async function connect(idx) {
             const dev = devices[idx];
-            
             if (dev.type === 'BLE') {
                 try {
                     const d = await navigator.bluetooth.requestDevice({
-                        acceptAllDevices: true, 
-                        optionalServices: [UUID_SVC]
+                        acceptAllDevices: true, optionalServices: [UUID_SVC]
                     });
                     const s = await d.gatt.connect();
                     const svc = await s.getPrimaryService(UUID_SVC);
                     dev.char = await svc.getCharacteristic(UUID_CHR);
-                    dev.connected = true; 
-                    dev.expanded = true;
-                    
+                    dev.connected = true; dev.expanded = true;
                     d.addEventListener('gattserverdisconnected', () => {
-                        dev.connected = false; 
-                        dev.char = null;
-                        renderList();
+                        dev.connected = false; dev.char = null; renderList();
                         alert(dev.name + " mất kết nối!");
                     });
                 } catch(e) { alert("Lỗi BLE: " + e.message); }
             } else {
-                // Wifi Logic
                 const ip = prompt("Xác nhận IP:", dev.ip || "");
-                if(ip) { 
-                    dev.ip = ip; 
-                    dev.connected = true; 
-                    dev.expanded = true; 
-                    saveData(); 
-                }
+                if(ip) { dev.ip = ip; dev.connected = true; dev.expanded = true; saveData(); }
             }
             renderList();
         }
 
-        /* --- 5. GỬI LỆNH --- */
+        /* --- 4. GỬI LỆNH & ĐỘ SÁNG --- */
         async function cmd(idx, action) {
             const dev = devices[idx];
-            
-            // Xử lý Bluetooth
             if (dev.type === 'BLE') {
-                if(!dev.connected || !dev.char) return alert("Chưa kết nối Bluetooth!");
-                const data = new Uint8Array(HEX[action]);
-                try { await dev.char.writeValueWithResponse(data); }
-                catch(e) { 
-                    try { await dev.char.writeValueWithoutResponse(data); } 
-                    catch(e2){ alert("Lỗi gửi lệnh!"); } 
-                }
-            } 
-            // Xử lý Wifi
-            else {
+                if(!dev.connected) return alert("Chưa kết nối!");
+                try { await dev.char.writeValueWithResponse(new Uint8Array(HEX[action])); }
+                catch(e) { try { await dev.char.writeValueWithoutResponse(new Uint8Array(HEX[action])); } catch(e2){} }
+            } else {
                 if(!dev.ip) return alert("Thiếu IP!");
-                try { await fetch(`http://${dev.ip}/${action}`, {mode:'no-cors'}); } 
-                catch(e){}
+                try { await fetch(`http://${dev.ip}/${action}`, {mode:'no-cors'}); } catch(e){}
             }
         }
 
+        // HÀM CHỈNH ĐỘ SÁNG (Dành riêng cho BLE/Wi-Fi)
+        async function setBrightness(idx, val) {
+            const dev = devices[idx];
+            dev.brightness = val; // Lưu giá trị vào bộ nhớ
+            saveData(); // Lưu lại để lần sau mở ra vẫn nhớ mức cũ
+
+            if (dev.type === 'BLE') {
+                if(!dev.connected) return;
+                // Mã Hex độ sáng (Giả định): 0x7E 0x04 0x01 [Level] 0xFF 0x00 0xEF
+                // Bạn có thể cần dò lại bằng nRF Connect nếu mã này không chạy
+                const hexVal = parseInt(val); 
+                const brightCmd = new Uint8Array([0x7E, 0x04, 0x01, hexVal, 0xFF, 0x00, 0xEF]);
+                
+                try { await dev.char.writeValueWithoutResponse(brightCmd); } 
+                catch(e) { console.log("Lỗi chỉnh sáng BLE"); }
+            } 
+            else {
+                // Wifi: Gửi lệnh http://ip/bright?val=50
+                if(dev.ip) fetch(`http://${dev.ip}/bright?val=${val}`, {mode:'no-cors'}).catch(()=>{});
+            }
+        }
+
+        /* --- 5. QUẢN LÝ --- */
+        function addDeviceSafe() {
+            const name = prompt("Bước 1/2: Nhập tên", "Thiết bị mới");
+            if (name === null) return;
+            const typeInput = prompt("Bước 2/2: Chọn loại\n1 -> Bluetooth\n2 -> Wi-Fi", "1");
+            if (typeInput === null) return;
+            
+            let finalType = typeInput === '2' ? 'WIFI' : 'BLE';
+            let finalIP = typeInput === '2' ? prompt("IP (VD: 192.168.1.100)", "") : "";
+
+            devices.push({ 
+                id: Date.now(), name: name || "Không tên", type: finalType, ip: finalIP,
+                connected: false, expanded: false, brightness: 100, gatt: null, char: null 
+            });
+            saveData();
+        }
+
+        function deleteDev(idx) { if(confirm("Xóa thiết bị này?")) { devices.splice(idx, 1); saveData(); } }
+        function rename(idx) { const n = prompt("Tên mới:", devices[idx].name); if(n) { devices[idx].name = n; saveData(); } }
+        function toggle(idx) { devices[idx].expanded = !devices[idx].expanded; renderList(); }
         function openModal(id) { document.getElementById(id).classList.add('active'); if(id==='modal-devices') renderList(); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        // Render lần đầu
+        
         renderList();
     </script>
 </body>
