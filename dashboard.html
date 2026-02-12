@@ -6,6 +6,7 @@
     <title>Kens Control Hub</title>
     <style>
         body { margin: 0; padding: 0; background: #111; color: white; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        
         /* Khu vực hiển thị nội dung */
         .content-area { height: calc(100vh - 70px); overflow-y: auto; padding: 15px; }
         .tab-content { display: none; }
@@ -16,50 +17,67 @@
         .tab-item { text-align: center; color: #888; cursor: pointer; font-size: 12px; }
         .tab-item.active-tab { color: #00ff00; }
         .tab-item i { font-size: 24px; display: block; }
+
+        /* Style cho nút bấm đẹp hơn */
+        button:active { transform: scale(0.98); opacity: 0.8; }
     </style>
 </head>
 <body>
 
     <div class="content-area">
         <div id="home" class="tab-content active">
-            <div id="clock" style="font-size: 40px; text-align: center; margin-top: 20px;">00:00:00</div>
-            <div id="weather" style="text-align: center; color: #aaa;">Đang tải thời tiết...</div>
-            <div style="margin-top: 20px; height: 300px; border-radius: 15px; overflow: hidden;">
-                <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh" 
+            <div id="clock" style="font-size: 40px; text-align: center; margin-top: 20px; font-weight: bold;">00:00:00</div>
+            <div id="weather" style="text-align: center; color: #aaa; margin-bottom: 20px;">Hồ Chí Minh, VN</div>
+            
+            <div style="height: 300px; border-radius: 15px; overflow: hidden; border: 1px solid #333;">
+                <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh&showTitle=0&showNav=0&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA" 
                         style="border: 0; width: 100%; height: 100%;" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
 
         <div id="control" class="tab-content">
-            <h3 style="text-align: center;">Thiết bị: Đèn neon trước bàn học</h3>
-            <button onclick="initBluetooth()" id="connect-btn" style="width: 100%; padding: 15px; background: #008CBA; border: none; border-radius: 10px; color: white;">🔗 KẾT NỐI</button>
+            <h3 style="text-align: center; margin-bottom: 20px;">💡 Đèn Neon Bàn Học</h3>
             
-            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button onclick="sendHex('ON')" style="width: 48%; padding: 20px; background: #4CAF50; border: none; border-radius: 10px; color: white; font-weight: bold;">BẬT</button>
-                <button onclick="sendHex('OFF')" style="width: 48%; padding: 20px; background: #f44336; border: none; border-radius: 10px; color: white; font-weight: bold;">TẮT</button>
+            <button onclick="initBluetooth()" id="connect-btn" style="width: 100%; padding: 15px; background: #008CBA; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer;">
+                🔗 KẾT NỐI BLUETOOTH
+            </button>
+            
+            <p id="status" style="text-align: center; color: #ffd700; margin: 15px 0; font-size: 14px; min-height: 20px;">Sẵn sàng kết nối...</p>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button onclick="sendHex('ON')" style="width: 48%; padding: 20px; background: #4CAF50; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 18px;">BẬT</button>
+                <button onclick="sendHex('OFF')" style="width: 48%; padding: 20px; background: #f44336; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 18px;">TẮT</button>
             </div>
 
-            <div style="margin-top: 20px; background: #222; padding: 10px; border-radius: 15px; border: 1px solid #444;">
-    <p style="margin: 0 0 10px 5px; color: #aaa; font-size: 12px;">🎵 Nhạc Lo-fi / Gaming</p>
-    
-    <iframe width="100%" height="80" 
-            src="https://www.youtube.com/embed/videoseries?list=PLmP7O47PTy-McItNVWpEZxPTzqByUso82&si=tWm8Dz5hA25gRQ9X&autoplay=0&loop=1" 
-            title="YouTube Music Player" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-    </iframe>
-</div>
+             <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                <button onclick="sendHex('STUDY')" style="background: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 20px;">📖 Học tập</button>
+                <button onclick="sendHex('RELAX')" style="background: #9C27B0; color: white; border: none; padding: 10px 20px; border-radius: 20px;">🎮 Giải trí</button>
+            </div>
+
+            <div style="margin-top: 30px; background: #222; padding: 15px; border-radius: 15px; border: 1px solid #444;">
+                <p style="margin: 0 0 10px 5px; color: #aaa; font-size: 12px;">🎵 Nhạc Lo-fi / Gaming</p>
+                <iframe width="100%" height="80" 
+                        src="https://www.youtube.com/embed/videoseries?list=PLmP7O47PTy-McItNVWpEZxPTzqByUso82&si=tWm8Dz5hA25gRQ9X&autoplay=0&loop=1" 
+                        title="YouTube Music Player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
         </div>
     </div>
 
     <div class="tab-bar">
-        <div class="tab-item active-tab" onclick="switchTab('home', this)">🏠<span>Home</span></div>
-        <div class="tab-item" onclick="switchTab('control', this)">⚙️<span>Control</span></div>
+        <div class="tab-item active-tab" onclick="switchTab('home', this)">
+            <span style="font-size: 20px;">🏠</span><br>Home
+        </div>
+        <div class="tab-item" onclick="switchTab('control', this)">
+            <span style="font-size: 20px;">⚙️</span><br>Control
+        </div>
     </div>
 
     <script>
-        // 1. Chuyển đổi Tab
+        /* --- 1. LOGIC GIAO DIỆN --- */
         function switchTab(tabId, el) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active-tab'));
@@ -67,70 +85,96 @@
             el.classList.add('active-tab');
         }
 
-        // 2. Đồng hồ thời gian thực
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN');
         }
         setInterval(updateClock, 1000);
+        updateClock(); // Chạy ngay lập tức để không bị hiện 00:00:00
 
-        // 3. Bluetooth Logic (Gữ nguyên mã Hex bạn đã tìm được)
-        // ON: [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF]
-        // OFF: [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF]
-      let lampCharacteristic = null;
+        /* --- 2. LOGIC BLUETOOTH (ĐÃ CHÈN) --- */
+        let lampCharacteristic = null;
 
-const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb'; 
-const CHAR_UUID    = '0000fff3-0000-1000-8000-00805f9b34fb'; 
+        // Các UUID và Mã Hex chuẩn
+        const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb'; 
+        const CHAR_UUID    = '0000fff3-0000-1000-8000-00805f9b34fb'; 
 
-const HEX_CODES = {
-  'ON':    [0x7E, 0x04, 0x04, 0xF0 ,0x00, 0x01, 0xFF, 0x00, 0xEF], 
-  'OFF':   [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF], 
-  'STUDY': [0x7E, 0x05, 0x03, 0x00, 0xFF, 0x00],
-  'RELAX': [0x7E, 0x05, 0x03, 0xFF, 0x00, 0xFF] 
-};
+        const HEX_CODES = {
+            'ON':    [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF], 
+            'OFF':   [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF], 
+            'STUDY': [0x7E, 0x05, 0x03, 0x00, 0xFF, 0x00], // Lưu ý: Có thể cần dò lại mã 9 byte nếu mã 6 byte này không chạy
+            'RELAX': [0x7E, 0x05, 0x03, 0xFF, 0x00, 0xFF]  
+        };
 
-  async function initBluetooth() {
-  const statusEl = document.getElementById('status');
-  try {
-    statusEl.innerText = "Đang quét tất cả thiết bị...";
-    
-    // THAY ĐỔI TẠI ĐÂY: Loại bỏ filters và dùng acceptAllDevices
-    const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [SERVICE_UUID.toLowerCase()] // Bắt buộc phải khai báo UUID ở đây để sau này truy cập được
-    });
+        async function initBluetooth() {
+            const statusEl = document.getElementById('status');
+            if (!statusEl) { console.error("Không tìm thấy thẻ status!"); return; }
 
-    statusEl.innerText = "Đã chọn: " + device.name + ". Đang kết nối...";
-    const server = await device.gatt.connect();
-    
-    statusEl.innerText = "Đang lấy dịch vụ...";
-    const service = await server.getPrimaryService(SERVICE_UUID.toLowerCase());
-    lampCharacteristic = await service.getCharacteristic(CHAR_UUID.toLowerCase());
+            try {
+                statusEl.innerText = "Đang quét tất cả thiết bị...";
+                statusEl.style.color = "yellow";
+                
+                // Quét thiết bị (đã mở rộng phạm vi acceptAllDevices)
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [SERVICE_UUID.toLowerCase()] 
+                });
 
-    statusEl.innerText = "✅ Đã kết nối thành công!";
-  } catch (error) {
-    statusEl.innerText = "❌ Lỗi: " + error.message;
-    console.error(error);
-  }
-}
+                statusEl.innerText = "Đang kết nối với: " + device.name + "...";
+                const server = await device.gatt.connect();
+                
+                statusEl.innerText = "Đang tìm dịch vụ điều khiển...";
+                const service = await server.getPrimaryService(SERVICE_UUID.toLowerCase());
+                lampCharacteristic = await service.getCharacteristic(CHAR_UUID.toLowerCase());
 
-async function sendHex(mode) {
-  const statusEl = document.getElementById('status');
-  if (!lampCharacteristic) {
-    statusEl.innerText = "⚠️ Hãy bấm nút KẾT NỐI trước!";
-    return;
-  }
-  const command = new Uint8Array(HEX_CODES[mode]);
-  try {
-    // Thử phương thức ghi có xác nhận (an toàn hơn cho Android 10)
-    await lampCharacteristic.writeValueWithResponse(command);
-    document.getElementById('status').innerText = "✅ Đã gửi lệnh " + mode;
-  } catch (error) {
-    // Nếu đèn chỉ nhận lệnh không xác nhận
-    await lampCharacteristic.writeValueWithoutResponse(command);
-    document.getElementById('status').innerText = "✅ Đã gửi (No Response) " + mode;
-  }
-}
+                statusEl.innerText = "✅ Kết nối thành công!";
+                statusEl.style.color = "#00ff00"; // Màu xanh báo hiệu thành công
+                
+                // Tự động ngắt kết nối sau 10 phút để tiết kiệm pin (tùy chọn)
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+
+            } catch (error) {
+                statusEl.innerText = "❌ Lỗi: " + error.message;
+                statusEl.style.color = "red";
+                console.error(error);
+            }
+        }
+
+        function onDisconnected(event) {
+            const device = event.target;
+            document.getElementById('status').innerText = "⚠️ Đã ngắt kết nối";
+            document.getElementById('status').style.color = "orange";
+            lampCharacteristic = null;
+        }
+
+        async function sendHex(mode) {
+            const statusEl = document.getElementById('status');
+            if (!lampCharacteristic) {
+                statusEl.innerText = "⚠️ Chưa kết nối! Hãy bấm nút KẾT NỐI trước.";
+                statusEl.style.color = "orange";
+                return;
+            }
+
+            const command = new Uint8Array(HEX_CODES[mode]);
+            
+            try {
+                // Ưu tiên Write With Response (An toàn)
+                await lampCharacteristic.writeValueWithResponse(command);
+                statusEl.innerText = "✅ Đã gửi lệnh: " + mode;
+                statusEl.style.color = "#00ff00";
+            } catch (error) {
+                console.warn("WriteWithResponse failed, trying WithoutResponse...");
+                try {
+                    // Dự phòng Write Without Response (Nhanh)
+                    await lampCharacteristic.writeValueWithoutResponse(command);
+                    statusEl.innerText = "✅ Đã gửi (No-Resp): " + mode;
+                    statusEl.style.color = "#00ff00";
+                } catch (err2) {
+                    statusEl.innerText = "❌ Lỗi gửi lệnh: " + err2.message;
+                    statusEl.style.color = "red";
+                }
+            }
+        }
     </script>
 </body>
 </html>
