@@ -83,14 +83,23 @@ async function sendHex(mode) {
     statusEl.innerText = "⚠️ Hãy bấm nút KẾT NỐI trước!";
     return;
   }
-
+  const command = new Uint8Array(HEX_CODES[mode]);
   try {
-    const command = new Uint8Array(HEX_CODES[mode]);
-    // Thử dùng writeValueWithoutResponse để tốc độ nhanh hơn
-    await lampCharacteristic.writeValueWithoutResponse(command);
-    statusEl.innerText = "Đã chuyển: " + mode;
+    // Thử phương thức ghi có xác nhận (an toàn hơn cho Android 10)
+    await lampCharacteristic.writeValueWithResponse(command);
+    document.getElementById('status').innerText = "✅ Đã gửi lệnh " + mode;
   } catch (error) {
-    statusEl.innerText = "Lỗi gửi lệnh: " + error.message;
+    // Nếu đèn chỉ nhận lệnh không xác nhận
+    await lampCharacteristic.writeValueWithoutResponse(command);
+    document.getElementById('status').innerText = "✅ Đã gửi (No Response) " + mode;
   }
+  // try {
+  //   const command = new Uint8Array(HEX_CODES[mode]);
+  //   // Thử dùng writeValueWithoutResponse để tốc độ nhanh hơn
+  //   await lampCharacteristic.writeValueWithoutResponse(command);
+  //   statusEl.innerText = "Đã chuyển: " + mode;
+  // } catch (error) {
+  //   statusEl.innerText = "Lỗi gửi lệnh: " + error.message;
+  // }
 }
 </script>
