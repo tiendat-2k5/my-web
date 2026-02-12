@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-capable" content="yes"> <title>Kens Control Hub</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Kens Smart Home</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <style>
-        /* --- 1. CẤU HÌNH CỐT LÕI (CHỐNG CUỘN) --- */
-        body { 
-            margin: 0; padding: 10px; 
-            background: #000; color: white; 
-            font-family: 'Segoe UI', sans-serif; 
-            height: 100vh; width: 100vw; /* Ép cứng chiều cao/rộng bằng màn hình */
-            box-sizing: border-box; 
-            overflow: hidden; /* Cấm tuyệt đối thanh cuộn */
+        /* --- 1. CẤU HÌNH GIAO DIỆN (Sửa lỗi màn hình đen) --- */
+        body, html {
+            margin: 0; padding: 0;
+            background-color: #000000; /* Màu nền đen */
+            color: white;
+            font-family: sans-serif;
+            height: 100%; width: 100%;
+            overflow: hidden; /* Chống cuộn */
         }
 
-        /* --- 2. GRID LAYOUT THÔNG MINH --- */
+        /* Khung lưới chính */
         .dashboard-grid {
             display: grid;
-            height: 100%; width: 100%;
+            height: 100vh; width: 100vw;
+            padding: 10px; box-sizing: border-box;
             gap: 10px;
-            /* Mặc định cho điện thoại DỌC (Portrait) */
-            grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 2.5fr 1.5fr 1.5fr 1.2fr; /* Chia tỉ lệ chiều cao các hàng */
+            /* Cấu trúc dọc cho điện thoại */
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 2.5fr 1.5fr 1.5fr 1.5fr;
             grid-template-areas: 
                 "clock clock"
                 "weather status"
@@ -31,81 +34,99 @@
                 "music music";
         }
 
-        /* Tùy chỉnh cho điện thoại NGANG (Landscape) */
+        /* Cấu trúc ngang (Landscape) */
         @media (orientation: landscape) {
             .dashboard-grid {
-                grid-template-columns: 1.5fr 1fr 1fr; /* Cột đầu to hơn */
-                grid-template-rows: 1fr 1fr; /* 2 hàng đều nhau */
+                grid-template-columns: 1.5fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
                 grid-template-areas: 
                     "clock weather status"
                     "music lamp calendar";
             }
         }
 
-        /* --- 3. THIẾT KẾ WIDGET --- */
+        /* --- 2. GIAO DIỆN WIDGET --- */
         .widget {
             background: #1e1e1e;
             border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
             position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            transition: background 0.2s;
+            box-shadow: 0 4px 8px rgba(255,255,255,0.05); /* Viền sáng nhẹ để thấy nếu nền đen */
         }
-        .widget:active { transform: scale(0.98); opacity: 0.9; }
+        .widget:active { transform: scale(0.98); opacity: 0.8; }
 
-        /* Gán widget vào vùng Grid đã định nghĩa */
+        /* Màu sắc từng khu vực */
         .area-clock { grid-area: clock; background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); }
         .area-weather { grid-area: weather; background: #263238; }
         .area-status { grid-area: status; background: #212121; border: 1px solid #333; }
         .area-lamp { grid-area: lamp; background: #FFC107; color: #000; }
         .area-calendar { grid-area: calendar; background: #FF5722; }
-        .area-music { grid-area: music; background: #000; border: 1px solid #333; padding: 0; overflow: hidden; }
+        .area-music { grid-area: music; background: #000; border: 1px solid #333; }
 
-        /* Font chữ co giãn theo màn hình (Viewport Units) */
-        #clock { font-size: 12vh; font-weight: bold; line-height: 1; } /* Giờ to theo chiều cao màn hình */
-        #date { font-size: 2.5vh; margin-top: 5px; opacity: 0.8; }
-        .widget-icon { font-size: 8vh; margin-bottom: 5px; }
-        .widget-label { font-size: 2vh; font-weight: bold; text-transform: uppercase; }
-        .widget-sub { font-size: 1.8vh; opacity: 0.7; }
+        /* Font chữ */
+        #clock { font-size: 12vh; font-weight: bold; line-height: 1; }
+        #date { font-size: 2vh; margin-top: 5px; opacity: 0.8; }
+        .widget-icon { font-size: 5vh; margin-bottom: 5px; }
+        .label-text { font-size: 1.8vh; font-weight: bold; text-transform: uppercase; }
 
-        /* Riêng cho Landscape thì giảm font đồng hồ chút cho đỡ vỡ */
-        @media (orientation: landscape) {
-            #clock { font-size: 15vh; }
-            .widget-icon { font-size: 10vh; }
-        }
-
-        /* --- 4. MODAL (POPUP) --- */
+        /* --- 3. MODAL (Cửa sổ bật lên) --- */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 999;
-            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.95); z-index: 999;
+            justify-content: center; align-items: flex-start;
+            padding-top: 40px;
             backdrop-filter: blur(5px);
         }
         .modal-overlay.active { display: flex; }
+
         .modal-content {
-            background: #222; width: 85%; max-width: 400px;
-            padding: 20px; border-radius: 20px; text-align: center;
-            border: 1px solid #444;
-        }
-        .lamp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .lamp-btn {
-            padding: 20px; border: none; border-radius: 15px;
-            font-size: 18px; font-weight: bold; color: white;
-        }
-        .close-btn { 
-            position: absolute; top: 20px; right: 20px; 
-            font-size: 30px; color: #fff; cursor: pointer; z-index: 1001;
+            background: #121212; width: 90%; max-width: 500px;
+            border-radius: 15px; padding: 20px;
+            border: 1px solid #333;
+            max-height: 85vh; overflow-y: auto;
         }
 
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 30px; color: white; cursor: pointer;
+        }
+
+        /* Style cho danh sách thiết bị */
+        .device-card {
+            background: #222; border-radius: 10px; margin-bottom: 15px;
+            border: 1px solid #333; overflow: hidden;
+        }
+        .device-header {
+            padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            background: #2a2a2a;
+        }
+        .status-dot {
+            height: 10px; width: 10px; background-color: #555; border-radius: 50%;
+            display: inline-block; margin-right: 10px;
+        }
+        .status-dot.on { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
+        
+        .device-controls {
+            display: none; padding: 15px; grid-template-columns: 1fr 1fr; gap: 10px;
+            background: #111;
+        }
+        .device-controls.show { display: grid; }
+
+        .ctrl-btn {
+            padding: 15px; border: none; border-radius: 8px;
+            color: white; font-weight: bold; font-size: 16px; cursor: pointer;
+        }
+        .add-btn {
+            width: 100%; padding: 15px; margin-top: 10px;
+            background: transparent; border: 2px dashed #555; color: #888;
+            border-radius: 10px; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="dashboard-grid">
-        
         <div class="widget area-clock">
             <div id="clock">00:00</div>
             <div id="date">Đang tải...</div>
@@ -114,130 +135,182 @@
         <div class="widget area-weather">
             <span id="weather-icon" class="widget-icon">🌤️</span>
             <div id="temperature" style="font-size: 4vh; font-weight: bold;">--°C</div>
-            <div id="weather-desc" class="widget-sub">TP.HCM</div>
         </div>
 
         <div class="widget area-status">
-            <span class="material-icons widget-icon" style="color: #4CAF50;">bluetooth</span>
-            <div class="widget-sub">TRẠNG THÁI</div>
-            <div id="lamp-status-text" style="font-weight: bold; color: #4CAF50; font-size: 2vh;">Sẵn sàng</div>
+            <span class="material-icons widget-icon" style="color: #4CAF50;">dns</span>
+            <div class="label-text" style="color: #aaa;">ONLINE</div>
+            <div id="active-count" style="font-size: 3vh; font-weight: bold;">0</div>
         </div>
 
-        <div class="widget area-lamp" onclick="openModal('modal-lamp')">
-            <span class="material-icons widget-icon">lightbulb</span>
-            <div class="widget-label">ĐIỀU KHIỂN</div>
+        <div class="widget area-lamp" onclick="openModal('modal-devices')">
+            <span class="material-icons widget-icon">settings_remote</span>
+            <div class="label-text">THIẾT BỊ</div>
         </div>
 
         <div class="widget area-calendar" onclick="openModal('modal-calendar')">
             <span class="material-icons widget-icon">event</span>
-            <div class="widget-label">LỊCH</div>
+            <div class="label-text">LỊCH</div>
         </div>
 
         <div class="widget area-music">
-            <iframe width="100%" height="100%" 
-                    src="https://www.youtube.com/embed/videoseries?list=PLmP7O47PTy-McItNVWpEZxPTzqByUso82&si=tWm8Dz5hA25gRQ9X&autoplay=0&loop=1&controls=1" 
-                    title="YouTube Music" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/videoseries?list=PLmP7O47PTy-McItNVWpEZxPTzqByUso82&autoplay=0&loop=1&controls=1" frameborder="0" allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
 
-
-    <div id="modal-lamp" class="modal-overlay">
-        <span class="close-btn" onclick="closeModal('modal-lamp')">&times;</span>
+    <div id="modal-devices" class="modal-overlay">
         <div class="modal-content">
-            <h2 style="margin: 0 0 15px 0; color: #FFC107;">💡 ĐIỀU KHIỂN</h2>
-            
-            <button onclick="initBluetooth()" style="width: 100%; padding: 15px; background: #2196F3; border: none; border-radius: 10px; color: white; font-weight: bold; margin-bottom: 10px;">
-                🔗 KẾT NỐI BLUETOOTH
-            </button>
-            <div id="bt-log" style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Chưa kết nối</div>
-
-            <div class="lamp-grid">
-                <button class="lamp-btn" style="background: #4CAF50;" onclick="sendHex('ON')">BẬT</button>
-                <button class="lamp-btn" style="background: #f44336;" onclick="sendHex('OFF')">TẮT</button>
-                <button class="lamp-btn" style="background: #9C27B0;" onclick="sendHex('STUDY')">📖 HỌC</button>
-                <button class="lamp-btn" style="background: #E91E63;" onclick="sendHex('RELAX')">🎮 CHƠI</button>
-            </div>
+            <span class="close-btn" onclick="closeModal('modal-devices')">&times;</span>
+            <h2 style="margin-top: 0; color: #FFC107; text-align: center;">📱 Danh Sách Thiết Bị</h2>
+            <div id="device-list"></div>
+            <button class="add-btn" onclick="addDevice()">+ Thêm Thiết Bị</button>
         </div>
     </div>
 
     <div id="modal-calendar" class="modal-overlay">
         <span class="close-btn" onclick="closeModal('modal-calendar')">&times;</span>
-        <div class="modal-content" style="width: 90%; height: 80%; max-width: none;">
-            <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh&mode=AGENDA" 
-                    style="border: 0; width: 100%; height: 100%; border-radius: 10px;" frameborder="0"></iframe>
+        <div class="modal-content" style="height: 80%;">
+            <iframe src="https://calendar.google.com/calendar/embed?src=tiendatphannguyen@gmail.com&ctz=Asia%2FHo_Chi_Minh&mode=AGENDA" style="width: 100%; height: 100%; border:0;" frameborder="0"></iframe>
         </div>
     </div>
 
     <script>
-        /* --- LOGIC ĐỒNG HỒ --- */
-        function updateClock() {
+        /* --- 1. ĐỒNG HỒ & THỜI TIẾT --- */
+        function updateTime() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' });
+            document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date').innerText = now.toLocaleDateString('vi-VN', {weekday:'long', day:'numeric', month:'numeric'});
         }
-        setInterval(updateClock, 1000); updateClock();
+        setInterval(updateTime, 1000); updateTime();
 
-        /* --- LOGIC THỜI TIẾT --- */
-        async function fetchWeather() {
+        async function getWeather() {
             try {
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=10.8231&longitude=106.6297&current_weather=true');
                 const data = await res.json();
                 document.getElementById('temperature').innerText = Math.round(data.current_weather.temperature) + "°C";
-                const code = data.current_weather.weathercode;
-                document.getElementById('weather-icon').innerText = code > 50 ? "🌧️" : (code > 3 ? "☁️" : "☀️");
-                document.getElementById('weather-desc').innerText = code > 50 ? "Mưa" : (code > 3 ? "Mây" : "Nắng");
-            } catch (e) {}
+            } catch(e) {}
         }
-        fetchWeather(); setInterval(fetchWeather, 1800000);
+        getWeather();
 
-        /* --- LOGIC MODAL --- */
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        /* --- 2. QUẢN LÝ THIẾT BỊ (LOGIC MỚI) --- */
+        let devices = [
+            { id: 1, name: "Đèn Bàn (BLE)", type: 'BLE', connected: false, gatt: null, char: null, expanded: false },
+            { id: 2, name: "Đèn Trần (Wi-Fi)", type: 'WIFI', ip: '192.168.1.100', connected: false, expanded: false }
+        ];
 
-        /* --- LOGIC BLUETOOTH (CORE) --- */
-        let lampCharacteristic = null;
-        const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb'; 
-        const CHAR_UUID    = '0000fff3-0000-1000-8000-00805f9b34fb'; 
-        const HEX_CODES = {
-            'ON':    [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF], 
-            'OFF':   [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF], 
+        // Mã Hex Bluetooth
+        const UUID_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
+        const UUID_CHR = '0000fff3-0000-1000-8000-00805f9b34fb';
+        const HEX = {
+            'ON': [0x7E, 0x04, 0x04, 0xF0, 0x00, 0x01, 0xFF, 0x00, 0xEF],
+            'OFF': [0x7E, 0x04, 0x04, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEF],
             'STUDY': [0x7E, 0x05, 0x03, 0x00, 0xFF, 0x00],
-            'RELAX': [0x7E, 0x05, 0x03, 0xFF, 0x00, 0xFF]  
+            'RELAX': [0x7E, 0x05, 0x03, 0xFF, 0x00, 0xFF]
         };
 
-        async function initBluetooth() {
-            const log = document.getElementById('bt-log');
-            const statusText = document.getElementById('lamp-status-text');
-            try {
-                log.innerText = "Đang quét...";
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: [SERVICE_UUID.toLowerCase()]
-                });
-                const server = await device.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID.toLowerCase());
-                lampCharacteristic = await service.getCharacteristic(CHAR_UUID.toLowerCase());
-                
-                log.innerText = "Đã kết nối: " + device.name;
-                statusText.innerText = "Đã kết nối";
-                statusText.style.color = "#00ff00";
+        function renderList() {
+            const list = document.getElementById('device-list');
+            list.innerHTML = "";
+            let count = 0;
 
-                device.addEventListener('gattserverdisconnected', () => {
-                    statusText.innerText = "Mất kết nối";
-                    statusText.style.color = "red";
-                    log.innerText = "Đã ngắt kết nối";
-                });
-            } catch (err) {
-                log.innerText = "Lỗi: " + err.message;
+            devices.forEach((dev, idx) => {
+                if(dev.connected) count++;
+                
+                // Icon kết nối: Nếu BLE thì hình bluetooth, Wifi thì hình wifi
+                let icon = dev.type === 'BLE' ? 'bluetooth' : 'wifi';
+                let btnColor = dev.connected ? '#00ff00' : '#fff';
+
+                const html = `
+                <div class="device-card">
+                    <div class="device-header">
+                        <div style="display:flex; align-items:center;">
+                            <span class="status-dot ${dev.connected ? 'on' : ''}"></span>
+                            <span style="font-weight:bold; font-size:16px;">${dev.name}</span>
+                            <span class="material-icons" style="font-size:14px; color:#888; margin-left:10px; cursor:pointer;" onclick="rename(${idx})">edit</span>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            ${!dev.connected ? 
+                                `<button onclick="connect(${idx})" style="background:#2196F3; border:none; border-radius:50%; width:35px; height:35px; color:white; display:flex; justify-content:center; align-items:center;">
+                                    <span class="material-icons">${icon}</span>
+                                </button>` : ''
+                            }
+                            <button onclick="toggle(${idx})" style="background:#333; border:none; border-radius:50%; width:35px; height:35px; color:white; display:flex; justify-content:center; align-items:center;">
+                                <span class="material-icons">${dev.expanded ? 'expand_less' : 'expand_more'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="device-controls ${dev.expanded ? 'show' : ''}">
+                        <button class="ctrl-btn" style="background:#4CAF50;" onclick="cmd(${idx}, 'ON')">BẬT</button>
+                        <button class="ctrl-btn" style="background:#f44336;" onclick="cmd(${idx}, 'OFF')">TẮT</button>
+                        <button class="ctrl-btn" style="background:#2196F3;" onclick="cmd(${idx}, 'STUDY')">HỌC</button>
+                        <button class="ctrl-btn" style="background:#9C27B0;" onclick="cmd(${idx}, 'RELAX')">CHƠI</button>
+                    </div>
+                </div>`;
+                list.innerHTML += html;
+            });
+            document.getElementById('active-count').innerText = count;
+        }
+
+        /* --- 3. LOGIC KẾT NỐI --- */
+        async function connect(idx) {
+            const dev = devices[idx];
+            
+            if (dev.type === 'BLE') {
+                try {
+                    const d = await navigator.bluetooth.requestDevice({
+                        acceptAllDevices: true, 
+                        optionalServices: [UUID_SVC]
+                    });
+                    const s = await d.gatt.connect();
+                    const svc = await s.getPrimaryService(UUID_SVC);
+                    dev.char = await svc.getCharacteristic(UUID_CHR);
+                    dev.connected = true; 
+                    dev.expanded = true;
+                    
+                    d.addEventListener('gattserverdisconnected', () => {
+                        dev.connected = false; renderList();
+                        alert(dev.name + " mất kết nối!");
+                    });
+                } catch(e) { alert("Lỗi BLE: " + e.message); }
+            } else {
+                // Wifi
+                const ip = prompt("Nhập IP:", dev.ip);
+                if(ip) { dev.ip = ip; dev.connected = true; dev.expanded = true; }
+            }
+            renderList();
+        }
+
+        /* --- 4. GỬI LỆNH --- */
+        async function cmd(idx, action) {
+            const dev = devices[idx];
+            if (dev.type === 'BLE') {
+                if(!dev.connected) return alert("Chưa kết nối!");
+                const data = new Uint8Array(HEX[action]);
+                try { await dev.char.writeValueWithResponse(data); }
+                catch(e) { try { await dev.char.writeValueWithoutResponse(data); } catch(e2){} }
+            } else {
+                // Wifi Fetch
+                if(!dev.ip) return alert("Thiếu IP!");
+                try { await fetch(`http://${dev.ip}/${action}`, {mode:'no-cors'}); } catch(e){}
             }
         }
 
-        async function sendHex(mode) {
-            if (!lampCharacteristic) return alert("Chưa kết nối Bluetooth!");
-            const cmd = new Uint8Array(HEX_CODES[mode]);
-            try { await lampCharacteristic.writeValueWithResponse(cmd); } 
-            catch (e) { await lampCharacteristic.writeValueWithoutResponse(cmd); }
+        /* --- 5. HỖ TRỢ --- */
+        function toggle(idx) { devices[idx].expanded = !devices[idx].expanded; renderList(); }
+        function rename(idx) { const n = prompt("Tên mới:", devices[idx].name); if(n) { devices[idx].name = n; renderList(); } }
+        function addDevice() {
+            const type = prompt("Nhập '1' cho Bluetooth, '2' cho Wifi", "1");
+            devices.push({ 
+                id: Date.now(), 
+                name: "Thiết bị mới", 
+                type: type==='1'?'BLE':'WIFI', 
+                connected: false, expanded: false 
+            });
+            renderList();
         }
+        function openModal(id) { document.getElementById(id).classList.add('active'); if(id==='modal-devices') renderList(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
     </script>
 </body>
 </html>
